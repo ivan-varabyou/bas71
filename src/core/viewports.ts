@@ -1,0 +1,50 @@
+import type { ViewportDefinition } from './types.js';
+
+export const DEFAULT_VIEWPORTS: ViewportDefinition[] = [
+  {
+    id: 'popup',
+    label: 'Popup',
+    width: '780px',
+    height: '580px',
+    maxWidth: '780px',
+    maxHeight: '580px',
+    borderRadius: '8px',
+    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+    dock: 'center',
+  },
+  {
+    id: 'sidepanel',
+    label: 'SidePanel',
+    width: '400px',
+    height: '100%',
+    borderRadius: '0',
+    boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.4)',
+    dock: 'right',
+  },
+  {
+    id: 'overlay',
+    label: 'Overlay',
+    width: '94vw',
+    height: '94vh',
+    borderRadius: '8px',
+    boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
+    dock: 'center',
+  },
+  {
+    id: 'devtools',
+    label: 'DevTools',
+    width: '100%',
+    height: '350px',
+    borderRadius: '0',
+    boxShadow: '0 -10px 30px rgba(0, 0, 0, 0.4)',
+    dock: 'bottom',
+  },
+  {
+    id: 'fullscreen',
+    label: 'Full',
+    width: '100%',
+    height: '100%',
+    borderRadius: '0',
+    dock: 'fill',
+  },
+];

@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "scopes": [
+    {
+      "name": "bas71-src",
+      "path": "src",
+      "extensions": [".ts", ".js", ".mjs"],
+      "maxLines": 350
+    },
+    {
+      "name": "bas71-scripts",
+      "path": "scripts",
+      "extensions": [".mjs", ".js"],
+      "maxLines": 350
+    }
+  ],
+  "entities": [
+    {
+      "name": "createAddonStand",
+      "kind": "service",
+      "path": "src/core/stand.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "Universal browser extension dev stand harness and mock Chrome runtime",
+      "references": ["src/index.ts"]
+    },
+    {
+      "name": "createMockChromeRuntime",
+      "kind": "service",
+      "path": "src/runtime/mock-chrome.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "Mock Chrome extension runtime API for browser tabs",
+      "references": ["src/index.ts"]
+    },
+    {
+      "name": "MockStorageArea",
+      "kind": "service",
+      "path": "src/runtime/mock-storage.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "In-memory reactive storage area for chrome.storage",
+      "references": ["src/index.ts"]
+    },
+    {
+      "name": "StandToolbar",
+      "kind": "component",
+      "path": "src/core/toolbar.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "Interactive stand toolbar with viewports, storage inspector, and controls",
+      "references": ["src/core/stand.ts"]
+    }
+  ],
+  "policies": [
+    {
+      "id": "PROJECT-HARDCODE-001",
+      "pattern": "[\"'`]https?://(?:localhost|127\\.0\\.0\\.1)(?::[0-9]+)?",
+      "extensions": [".ts", ".js", ".mjs"],
+      "message": "Deployment URL is hardcoded. Resolve it through consumer configuration/port; retain explicit local defaults only in documented configuration."
+    }
+  ],
+  "guidance": "AGENTS.md",
+  "skill": "AGENTS.md"
+}

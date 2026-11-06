@@ -1,0 +1,99 @@
+{
+  "name": "bas71",
+  "version": "0.3.0",
+  "description": "Framework-agnostic browser extension dev stand harness and mock Chrome runtime for Vue, React, Angular, Svelte, and Vanilla JS",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "vendor",
+    "scripts",
+    "factory.config.yaml",
+    "factory.project.json",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./vue": {
+      "types": "./dist/adapters/vue.d.ts",
+      "import": "./dist/adapters/vue.js"
+    },
+    "./react": {
+      "types": "./dist/adapters/react.d.ts",
+      "import": "./dist/adapters/react.js"
+    },
+    "./styles.css": "./dist/styles/stand.css"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && mkdir -p dist/styles && cp src/styles/stand.css dist/styles/stand.css",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "check:line-budgets": "node scripts/check-line-budgets.mjs",
+    "project-check": "df71 project-check --cwd .",
+    "harness:check": "df71 harness",
+    "harness": "df71 harness",
+    "release": "node scripts/release.mjs",
+    "release:patch": "node scripts/release.mjs patch",
+    "release:minor": "node scripts/release.mjs minor",
+    "release:major": "node scripts/release.mjs major"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ivan-varabyou/bas71.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ivan-varabyou/bas71/issues"
+  },
+  "homepage": "https://github.com/ivan-varabyou/bas71#readme",
+  "keywords": [
+    "bas71",
+    "df71",
+    "browser-extension",
+    "chrome-extension",
+    "extension-stand",
+    "hmr",
+    "mock-chrome",
+    "vue",
+    "react",
+    "angular",
+    "svelte"
+  ],
+  "dependencies": {
+    "dev71": "file:vendor/dev71-0.6.0.tgz"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "vue": "^3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "22.20.5",
+    "df71": "file:vendor/df71-0.3.1.tgz",
+    "jsdom": "^30.1.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

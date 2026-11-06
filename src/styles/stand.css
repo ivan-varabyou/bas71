@@ -1,0 +1,289 @@
+.vfa-stand {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+  background-color: #0b0f19;
+  color: #f1f5f9;
+}
+
+.vfa-stand *,
+.vfa-stand *::before,
+.vfa-stand *::after {
+  box-sizing: inherit;
+}
+
+.vfa-stand-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+  z-index: 1000;
+  user-select: none;
+  gap: 12px;
+}
+
+.vfa-stand-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #38bdf8;
+  white-space: nowrap;
+}
+
+.vfa-stand-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #0284c7;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.vfa-stand-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  overflow-x: auto;
+}
+
+.vfa-stand-btn-group {
+  display: flex;
+  align-items: center;
+  background: #1f2937;
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid #374151;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.vfa-stand-label {
+  color: #9ca3af;
+  font-size: 11px;
+  padding: 0 4px;
+}
+
+.vfa-stand-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #d1d5db;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 120ms ease;
+  white-space: nowrap;
+}
+
+.vfa-stand-btn:hover {
+  background: #374151;
+  color: #ffffff;
+}
+
+.vfa-stand-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Custom Controls (Toggle, Select, Badge) */
+.vfa-stand-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #d1d5db;
+  user-select: none;
+}
+
+.vfa-stand-toggle-input {
+  cursor: pointer;
+}
+
+.vfa-stand-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.vfa-stand-select {
+  background: #111827;
+  color: #f1f5f9;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.vfa-stand-badge-widget {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  background: #111827;
+  color: #9ca3af;
+}
+
+.vfa-badge-val {
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.vfa-badge-success .vfa-badge-val { color: #10b981; }
+.vfa-badge-warning .vfa-badge-val { color: #f59e0b; }
+.vfa-badge-danger .vfa-badge-val { color: #ef4444; }
+
+/* Stage & Viewport Canvas */
+.vfa-stand-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #1e293b 0%, #0b0f19 100%);
+}
+
+.vfa-stand-stage[data-dock="right"] {
+  justify-content: flex-end;
+}
+
+.vfa-stand-stage[data-dock="bottom"] {
+  align-items: flex-end;
+}
+
+.vfa-stand-stage[data-dock="fill"] {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.vfa-simulated-backdrop {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  pointer-events: none;
+  background-image:
+    linear-gradient(#475569 1px, transparent 1px),
+    linear-gradient(90deg, #475569 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.vfa-stand-viewport {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateZ(0);
+  contain: paint;
+  isolation: isolate;
+  background: #ffffff;
+  color: #0f172a;
+  transition: width 150ms ease, height 150ms ease;
+}
+
+.vfa-stand-viewport[data-theme="dark"] {
+  background: #11141b;
+  color: #f8fafc;
+}
+
+.vfa-stand-viewport > * {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  box-sizing: border-box;
+}
+
+.vfa-stand-viewport [class*="overlay-container"],
+.vfa-stand-viewport [class*="popup-container"],
+.vfa-stand-viewport [class*="extension-root"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+}
+
+.vfa-stand-viewport [class*="overlay-window"],
+.vfa-stand-viewport [class*="popup-window"] {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.vfa-stand-viewport [class*="overlay-backdrop"] {
+  display: none !important;
+}
+
+
+/* Modal Dialog */
+.vfa-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.vfa-modal-window {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid #334155;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.vfa-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vfa-modal-content {
+  flex: 1;
+  overflow: auto;
+  background: #0f172a;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #38bdf8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

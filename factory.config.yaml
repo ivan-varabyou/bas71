@@ -1,0 +1,14 @@
+version: 1
+automation:
+  level: L1
+stages:
+  - id: bas71-typecheck
+    run: "npm run typecheck"
+  - id: bas71-test
+    run: "npm run test"
+  - id: bas71-line-budgets
+    run: "npm run check:line-budgets"
+  - id: bas71-project-check
+    run: "npm run project-check"
+  - id: bas71-build
+    run: "npm run build"
