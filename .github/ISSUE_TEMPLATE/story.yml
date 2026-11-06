@@ -1,0 +1,36 @@
+name: "Story (Scrum)"
+description: "High-level Scrum story tracking an OpenSpec capability or architectural module"
+title: "story(<module>): <summary>"
+labels: ["type:story", "status:backlog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Dark Factory Story
+        A Story covers an entire OpenSpec capability or module. Individual tasks should be linked as child items.
+  - type: input
+    id: openspec_module
+    attributes:
+      label: OpenSpec Module Path
+      description: Path to the living OpenSpec module (e.g. openspec/specs/dark-factory/spec.md)
+      placeholder: "openspec/specs/<module>/spec.md"
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Story Description & Business Value
+      description: Describe the goal and outcome for users and agents.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Story Acceptance Criteria
+      description: High-level requirements that must be met to close this story.
+      value: |
+        - [ ] All child implementation Tasks are completed and merged
+        - [ ] OpenSpec requirements and scenarios are 100% verified
+        - [ ] Dark factory verification gate passes (`make df71:check`)
+    validations:
+      required: true

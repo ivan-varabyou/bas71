@@ -1,0 +1,55 @@
+name: Dark Factory Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verification-gate:
+    name: Factory Verification Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Pull and Verify Environment
+        run: make env
+
+      - name: Install Dependencies
+        run: make setup
+
+      - name: Pre-Task Stage & Git Hygiene Gate
+        run: make stage-check
+
+      - name: Execute Dark Factory Gate (lint, typecheck, tests, line-budgets)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            make df71:check || npx --yes df71@latest check --create-issue
+          else
+            make df71:check
+          fi

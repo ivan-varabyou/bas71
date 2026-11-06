@@ -1,4 +1,5 @@
-import type { MockChromeRuntime } from '../runtime/mock-chrome.js';
+import type { MockChromeRuntime, MockTab } from '../runtime/mock-chrome.js';
+import type { RequestHandler } from '../runtime/backend-proxy.js';
 
 export type StandardViewportPreset = 'popup' | 'sidepanel' | 'overlay' | 'devtools' | 'fullscreen';
 export type StandViewport = StandardViewportPreset;
@@ -16,6 +17,24 @@ export interface ViewportDefinition {
 }
 
 export type StandTheme = 'light' | 'dark' | 'system';
+
+export interface StandScenario<TState extends Record<string, unknown> = Record<string, unknown>> {
+  id: string;
+  label: string;
+  description?: string | undefined;
+  storage?: {
+    local?: Record<string, unknown> | undefined;
+    session?: Record<string, unknown> | undefined;
+    sync?: Record<string, unknown> | undefined;
+  } | undefined;
+  state?: Partial<TState> | undefined;
+  handlers?: RequestHandler[] | undefined;
+}
+
+export interface StandBackendConfig {
+  interceptFetch?: boolean | undefined;
+  handlers?: RequestHandler[] | undefined;
+}
 
 export type CustomControl<TState extends Record<string, unknown> = Record<string, unknown>> =
   | {
@@ -71,6 +90,8 @@ export interface StandOptions<TState extends Record<string, unknown> = Record<st
   viewports?: ViewportDefinition[] | undefined;
   defaultTheme?: StandTheme | undefined;
   manifest?: Record<string, unknown> | undefined;
+  extensionId?: string | undefined;
+  mockTabs?: MockTab[] | undefined;
   initialStorage?: {
     local?: Record<string, unknown> | undefined;
     session?: Record<string, unknown> | undefined;
@@ -78,6 +99,9 @@ export interface StandOptions<TState extends Record<string, unknown> = Record<st
   } | undefined;
   initialState?: TState | undefined;
   controls?: Array<CustomControl<TState>> | undefined;
+  scenarios?: Array<StandScenario<TState>> | undefined;
+  defaultScenario?: string | undefined;
+  backend?: StandBackendConfig | undefined;
   devtools?: boolean | Record<string, unknown> | undefined;
   mount: StandMountFunction<TState>;
 }
@@ -92,7 +116,10 @@ export interface StandContext<TState extends Record<string, unknown> = Record<st
   setTheme: (theme: StandTheme) => void;
   reload: () => void;
   toggleStorageInspector: () => void;
-  toggleDevTools?: () => void;
+  toggleDevTools?: (() => void) | undefined;
+  activateScenario: (scenarioId: string) => void;
+  getActiveScenario: () => StandScenario<TState> | null;
+  getScenarios: () => Array<StandScenario<TState>>;
 }
 
 export interface AddonStandInstance<TState extends Record<string, unknown> = Record<string, unknown>> {
@@ -103,4 +130,7 @@ export interface AddonStandInstance<TState extends Record<string, unknown> = Rec
   setState: (updater: Partial<TState> | ((prev: TState) => Partial<TState>)) => void;
   getState: () => TState;
   getContext: () => StandContext<TState>;
+  activateScenario: (scenarioId: string) => void;
+  getActiveScenario: () => StandScenario<TState> | null;
+  getScenarios: () => Array<StandScenario<TState>>;
 }

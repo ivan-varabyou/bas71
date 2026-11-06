@@ -41,7 +41,15 @@ describe('bas71', () => {
 
   describe('createMockChromeRuntime', () => {
     it('handles sendMessage and onMessage listeners', async () => {
-      const runtime = createMockChromeRuntime();
+      const runtime = createMockChromeRuntime({
+        extensionId: 'custom-dev-id',
+        mockTabs: [{ id: 99, url: 'https://test.page', title: 'Test', active: true }],
+      });
+      expect(runtime.runtime.id).toBe('custom-dev-id');
+      expect(await runtime.tabs.query({})).toEqual([
+        { id: 99, url: 'https://test.page', title: 'Test', active: true },
+      ]);
+
       const messageListener = vi.fn(async (msg: unknown) => ({ echo: msg }));
       runtime.runtime.onMessage.addListener(messageListener);
 
@@ -81,7 +89,7 @@ describe('bas71', () => {
       expect(unmountSpy).toHaveBeenCalledTimes(2);
     });
 
-    it('manages custom controls and reactive state', async () => {
+    it('manages custom controls, scenarios and reactive state', async () => {
       const target = document.createElement('div');
       document.body.appendChild(target);
 
@@ -95,6 +103,21 @@ describe('bas71', () => {
       const stand = createAddonStand<CustomState>({
         target,
         initialState: { mode: 'dev', isRecording: false },
+        scenarios: [
+          {
+            id: 'dev-mode',
+            label: 'Development',
+            state: { mode: 'dev', isRecording: false },
+            storage: { local: { token: 'mock-dev-token' } },
+          },
+          {
+            id: 'prod-mode',
+            label: 'Production',
+            state: { mode: 'prod', isRecording: true },
+            storage: { local: { token: 'mock-prod-token' } },
+          },
+        ],
+        defaultScenario: 'dev-mode',
         controls: [
           {
             type: 'toggle',
@@ -103,19 +126,6 @@ describe('bas71', () => {
             value: (state) => state.isRecording,
             onChange: (checked, ctx) => {
               ctx.setState({ isRecording: checked });
-            },
-          },
-          {
-            type: 'select',
-            id: 'mode-select',
-            label: 'Mode:',
-            options: [
-              { label: 'Dev', value: 'dev' },
-              { label: 'Prod', value: 'prod' },
-            ],
-            value: (state) => state.mode,
-            onChange: (val, ctx) => {
-              ctx.setState({ mode: val });
             },
           },
         ],
@@ -127,9 +137,14 @@ describe('bas71', () => {
         },
       });
 
-      expect(receivedState).toEqual({ mode: 'dev', isRecording: false });
+      expect(stand.getScenarios()).toHaveLength(2);
+      expect(stand.getActiveScenario()?.id).toBe('dev-mode');
 
-      stand.setState({ isRecording: true, mode: 'prod' });
+      // Programmatic scenario activation
+      stand.activateScenario('prod-mode');
+      await new Promise((r) => setTimeout(r, 20));
+
+      expect(stand.getActiveScenario()?.id).toBe('prod-mode');
       expect(receivedState).toEqual({ mode: 'prod', isRecording: true });
 
       stand.destroy();

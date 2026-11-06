@@ -25,6 +25,33 @@
       "references": ["src/index.ts"]
     },
     {
+      "name": "BackendProxy",
+      "kind": "service",
+      "path": "src/runtime/backend-proxy.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "Network and message interception proxy for backend mocking",
+      "references": ["src/index.ts", "src/core/stand.ts"]
+    },
+    {
+      "name": "ScenarioRegistry",
+      "kind": "service",
+      "path": "src/core/scenario-registry.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "State and storage fixture orchestration registry for scenarios",
+      "references": ["src/index.ts", "src/core/stand.ts"]
+    },
+    {
+      "name": "StorageInspector",
+      "kind": "component",
+      "path": "src/core/storage-inspector.ts",
+      "owner": "bas71",
+      "status": "approved",
+      "description": "Multi-area storage inspection and mutation UI modal",
+      "references": ["src/index.ts", "src/core/stand.ts"]
+    },
+    {
       "name": "createMockChromeRuntime",
       "kind": "service",
       "path": "src/runtime/mock-chrome.ts",

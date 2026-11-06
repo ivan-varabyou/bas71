@@ -1,0 +1,51 @@
+name: "Task (Implementation)"
+description: "Discrete implementation task tied to an explicit OpenSpec requirement and test scenarios"
+title: "feat(<module>): <summary>"
+labels: ["type:task", "status:backlog"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Dark Factory Implementation Task
+        **Invariant**: No implementation code without a Task citing a living `### Requirement:`.
+  - type: input
+    id: parent_story
+    attributes:
+      label: Parent Story #ID
+      description: GitHub issue number of the parent Story (e.g. #42)
+      placeholder: "#<StoryID>"
+    validations:
+      required: true
+  - type: input
+    id: openspec_requirement
+    attributes:
+      label: OpenSpec Requirement Reference
+      description: Exact title and module path of the living requirement
+      placeholder: "openspec/specs/<module>/spec.md -> Requirement: <Title>"
+    validations:
+      required: true
+  - type: textarea
+    id: scenarios
+    attributes:
+      label: Acceptance Scenarios (Given-When-Then)
+      description: Copy exact scenarios from the OpenSpec requirement. Each scenario must have a red-before-green test!
+      value: |
+        - [ ] Scenario 1: [GIVEN ... WHEN ... THEN ...]
+        - [ ] Scenario 2 (Reject path): [GIVEN ... WHEN ... THEN ...]
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Dark Factory Execution Gates
+      options:
+        - label: "Phase 0: `make stage-check` passed (clean git stage, no secrets/temp/screenshots)"
+          required: true
+        - label: "Phase 1: Red-TDD tests written in `src/*.test.ts` before writing code"
+          required: true
+        - label: "Phase 2: Entity contracts `<name>.api.md` (≤ 60 lines) created for shared modules"
+          required: true
+        - label: "Phase 3: Physical line budgets respected (Vue ≤ 180, Composable ≤ 80, Adapter ≤ 220)"
+          required: true
+        - label: "Phase 4: Unified gate `make df71:check` green with exitCode 0"
+          required: true

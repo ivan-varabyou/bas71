@@ -4,11 +4,15 @@ import type {
   StandContext,
   ViewportDefinition,
   AddonStandInstance,
+  StandScenario,
 } from './types.js';
 import {
   createMockChromeRuntime,
   injectMockChromeGlobal,
 } from '../runtime/mock-chrome.js';
+import { BackendProxy } from '../runtime/backend-proxy.js';
+import { ScenarioRegistry } from './scenario-registry.js';
+import { StorageInspector } from './storage-inspector.js';
 import { mountDevTools } from 'dev71';
 import { StandToolbar } from './toolbar.js';
 import { DEFAULT_VIEWPORTS } from './viewports.js';
@@ -33,11 +37,31 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
     rootContainer = options.target;
   }
 
+  // 1. Backend Proxy
+  const backendProxy = new BackendProxy();
+  if (options.backend?.interceptFetch !== false) {
+    backendProxy.install(options.backend?.handlers ?? []);
+  }
+
+  // 2. Mock Chrome Runtime
   const runtime = createMockChromeRuntime({
     manifest: options.manifest,
+    extensionId: options.extensionId,
+    mockTabs: options.mockTabs,
+    backendProxy,
     initialStorage: options.initialStorage,
   });
   injectMockChromeGlobal(runtime);
+
+  // 3. Scenario Registry
+  const scenarioRegistry = new ScenarioRegistry<TState>(
+    options.scenarios,
+    options.initialStorage,
+    options.defaultScenario
+  );
+
+  // 4. Storage Inspector
+  const storageInspector = new StorageInspector(runtime);
 
   const viewportsList: ViewportDefinition[] = options.viewports ?? DEFAULT_VIEWPORTS;
   const initialViewportId = options.defaultViewport ?? viewportsList[0]?.id ?? 'popup';
@@ -45,7 +69,6 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
   let currentViewport = initialViewportId;
   let currentTheme: StandTheme = options.defaultTheme ?? 'dark';
   let currentState: TState = (options.initialState ?? {}) as TState;
-  let isInspectingStorage = false;
 
   const stateListeners = new Set<(state: TState) => void>();
   const themeListeners = new Set<(theme: StandTheme) => void>();
@@ -151,16 +174,30 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
       executeMount();
     },
     toggleStorageInspector() {
-      isInspectingStorage = !isInspectingStorage;
-      renderStorageModal();
+      storageInspector.toggle();
     },
     toggleDevTools: devToolsInstance ? () => devToolsInstance?.toggle() : undefined,
+    activateScenario(scenarioId: string) {
+      scenarioRegistry
+        .activate(scenarioId, {
+          runtime,
+          setState: context.setState,
+          backendProxy,
+        })
+        .then(() => {
+          toolbar.update();
+          context.reload();
+        });
+    },
+    getActiveScenario: () => scenarioRegistry.getActive(),
+    getScenarios: () => scenarioRegistry.getAll(),
   };
 
   const toolbar = new StandToolbar<TState>({
     title: options.title ?? (options.manifest?.['name'] as string | undefined) ?? 'Extension Stand',
     viewports: viewportsList,
     controls: options.controls,
+    scenarios: options.scenarios,
     context,
   });
 
@@ -170,6 +207,18 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
 
   applyViewportStyles(currentViewport);
   applyTheme(currentTheme);
+
+  // Apply default scenario on start if specified
+  const initialScenario = scenarioRegistry.getActive();
+  if (initialScenario) {
+    scenarioRegistry.activate(initialScenario.id, {
+      runtime,
+      setState: (s) => {
+        currentState = { ...currentState, ...(typeof s === 'function' ? s(currentState) : s) };
+      },
+      backendProxy,
+    });
+  }
 
   function executeMount(): Promise<void> {
     if (currentUnmount) {
@@ -217,67 +266,6 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
     return Promise.resolve();
   }
 
-  // Storage Inspector Modal
-  let storageModalEl: HTMLElement | null = null;
-  function renderStorageModal(): void {
-    if (storageModalEl) {
-      storageModalEl.remove();
-      storageModalEl = null;
-    }
-
-    if (!isInspectingStorage) return;
-
-    storageModalEl = document.createElement('div');
-    storageModalEl.className = 'vfa-modal-overlay';
-    storageModalEl.addEventListener('click', (e) => {
-      if (e.target === storageModalEl) {
-        isInspectingStorage = false;
-        renderStorageModal();
-      }
-    });
-
-    const modalWindow = document.createElement('div');
-    modalWindow.className = 'vfa-modal-window';
-
-    const header = document.createElement('div');
-    header.className = 'vfa-modal-header';
-    header.innerHTML = '<span>Storage Inspector (chrome.storage.local)</span>';
-
-    const actions = document.createElement('div');
-    actions.className = 'vfa-stand-btn-group';
-
-    const clearBtn = document.createElement('button');
-    clearBtn.type = 'button';
-    clearBtn.className = 'vfa-stand-btn';
-    clearBtn.textContent = 'Clear Storage';
-    clearBtn.addEventListener('click', async () => {
-      await runtime.storage.local.clear();
-      renderStorageModal();
-    });
-    actions.appendChild(clearBtn);
-
-    const closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'vfa-stand-btn';
-    closeBtn.textContent = '✕ Close';
-    closeBtn.addEventListener('click', () => {
-      isInspectingStorage = false;
-      renderStorageModal();
-    });
-    actions.appendChild(closeBtn);
-
-    header.appendChild(actions);
-
-    const content = document.createElement('pre');
-    content.className = 'vfa-modal-content';
-    content.textContent = JSON.stringify(runtime.storage.local.getSnapshot(), null, 2);
-
-    modalWindow.appendChild(header);
-    modalWindow.appendChild(content);
-    storageModalEl.appendChild(modalWindow);
-    document.body.appendChild(storageModalEl);
-  }
-
   executeMount();
 
   return {
@@ -286,9 +274,8 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
         currentUnmount();
         currentUnmount = null;
       }
-      if (storageModalEl) {
-        storageModalEl.remove();
-      }
+      storageInspector.destroy();
+      backendProxy.uninstall();
       if (devToolsInstance?.destroy) {
         devToolsInstance.destroy();
       }
@@ -300,5 +287,8 @@ export function createAddonStand<TState extends Record<string, unknown> = Record
     setState: context.setState,
     getState: () => currentState,
     getContext: () => context,
+    activateScenario: context.activateScenario,
+    getActiveScenario: context.getActiveScenario,
+    getScenarios: context.getScenarios,
   };
 }

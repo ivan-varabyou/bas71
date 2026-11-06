@@ -1,11 +1,21 @@
 export { createAddonStand } from './core/stand.js';
 export { StandToolbar } from './core/toolbar.js';
 export { DEFAULT_VIEWPORTS } from './core/viewports.js';
+export { ScenarioRegistry } from './core/scenario-registry.js';
+export { StorageInspector } from './core/storage-inspector.js';
+export {
+  BackendProxy,
+  type RequestHandler,
+  type RequestMatch,
+  type InterceptedRequest,
+} from './runtime/backend-proxy.js';
 export {
   createMockChromeRuntime,
   injectMockChromeGlobal,
   type MockChromeRuntime,
+  type MockTab,
   type MessageListener,
+  type CreateMockChromeOptions,
 } from './runtime/mock-chrome.js';
 export {
   MockStorageArea,
@@ -31,4 +41,6 @@ export type {
   ViewportDefinition,
   CustomControl,
   AddonStandInstance,
+  StandScenario,
+  StandBackendConfig,
 } from './core/types.js';

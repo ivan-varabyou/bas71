@@ -78,6 +78,45 @@ createAddonStand({
       settings: { enabled: true },
     },
   },
+  // Scenarios for testing variations:
+  scenarios: [
+    {
+      id: 'empty',
+      label: '📭 Empty State',
+      storage: { local: { items: [] } },
+      handlers: [
+        {
+          match: { url: '/api/items' },
+          respond: () => ({ items: [] }),
+        },
+      ],
+    },
+    {
+      id: 'loaded',
+      label: '✅ Loaded with Data',
+      storage: { local: { items: ['id-1', 'id-2'] } },
+      handlers: [
+        {
+          match: { url: '/api/items' },
+          respond: () => ({ items: [{ id: '1', name: 'Item 1' }] }),
+          delay: 150, // simulate network latency
+        },
+      ],
+    },
+    {
+      id: 'error',
+      label: '❌ Backend Error',
+      handlers: [
+        {
+          match: { url: '/api/items' },
+          respond: () => {
+            throw new Error('500 Internal Server Error');
+          },
+        },
+      ],
+    },
+  ],
+  defaultScenario: 'loaded',
   // Custom controls:
   controls: [
     {

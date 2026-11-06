@@ -28,8 +28,8 @@ importers:
         specifier: 22.20.5
         version: 22.20.5
       df71:
-        specifier: file:vendor/df71-0.3.1.tgz
-        version: file:vendor/df71-0.3.1.tgz
+        specifier: file:vendor/df71-0.3.5.tgz
+        version: file:vendor/df71-0.3.5.tgz
       jsdom:
         specifier: ^30.1.3
         version: 30.1.3
@@ -529,11 +529,13 @@ packages:
     resolution: {integrity: sha512-zEcA7tQWBWMXLjTx/yeOQ/lbZwfnQvxpctLhfS/RoWyYON6wlVAFWQNscjjBem3xh08M4ZeGU1/ZdWAJUGM0/g==, tarball: file:vendor/dev71-0.6.0.tgz}
     version: 0.6.0
 
-  df71@file:vendor/df71-0.3.1.tgz:
-    resolution: {integrity: sha512-9YQBZ4sO2LwzIkxOM/rpzEdirIDLVaZ635xjPTlJ15MvqTcLsOgjOejRpo1SybTROlAScXsOVwM4kcknjSLXxA==, tarball: file:vendor/df71-0.3.1.tgz}
-    version: 0.3.1
+  df71@file:vendor/df71-0.3.5.tgz:
+    resolution: {integrity: sha512-SdSF4sevj4CW6QO5YdG1H/OPOb9SflHMQ5A5ItqgePl90WnlxXpvi3sifumiNND3hc0yfOJSYKUde+W9/R7I+Q==, tarball: file:vendor/df71-0.3.5.tgz}
+    version: 0.3.5
     engines: {node: '>=20'}
     hasBin: true
+    bundledDependencies:
+      - yaml
 
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
@@ -1225,9 +1227,7 @@ snapshots:
 
   dev71@file:vendor/dev71-0.6.0.tgz: {}
 
-  df71@file:vendor/df71-0.3.1.tgz:
-    dependencies:
-      yaml: 2.9.1
+  df71@file:vendor/df71-0.3.5.tgz: {}
 
   entities@7.0.1: {}
 
@@ -1555,4 +1555,5 @@ snapshots:
 
   xmlchars@2.2.0: {}
 
-  yaml@2.9.1: {}
+  yaml@2.9.1:
+    optional: true

@@ -1,4 +1,12 @@
 import { MockStorageArea, type StorageChangeCallback } from './mock-storage.js';
+import type { BackendProxy } from './backend-proxy.js';
+
+export interface MockTab {
+  id: number;
+  url: string;
+  title: string;
+  active: boolean;
+}
 
 export interface MessageListenerContext {
   message: unknown;
@@ -37,7 +45,7 @@ export interface MockChromeRuntime {
     };
   };
   tabs: {
-    query: (queryInfo: Record<string, unknown>) => Promise<Array<{ id: number; url: string; title: string; active: boolean }>>;
+    query: (queryInfo: Record<string, unknown>) => Promise<MockTab[]>;
     sendMessage: (tabId: number, message: unknown) => Promise<unknown>;
   };
   action: {
@@ -50,6 +58,9 @@ export interface MockChromeRuntime {
 
 export interface CreateMockChromeOptions {
   manifest?: Record<string, unknown> | undefined;
+  extensionId?: string | undefined;
+  mockTabs?: MockTab[] | undefined;
+  backendProxy?: BackendProxy | undefined;
   initialStorage?: {
     local?: Record<string, unknown> | undefined;
     session?: Record<string, unknown> | undefined;
@@ -81,11 +92,16 @@ export function createMockChromeRuntime(options: CreateMockChromeOptions = {}): 
   sessionStorage.addListener(forwardStorageChange);
   syncStorage.addListener(forwardStorageChange);
 
+  const extensionId = options.extensionId ?? 'mock-addon-dev-id';
   const manifestData = options.manifest ?? {
     name: 'Browser Extension Stand',
     version: '1.0.0',
     manifest_version: 3,
   };
+
+  const defaultTabs: MockTab[] = options.mockTabs ?? [
+    { id: 1, url: 'about:blank', title: 'Active Tab', active: true },
+  ];
 
   const mockRuntime: MockChromeRuntime = {
     storage: {
@@ -98,13 +114,22 @@ export function createMockChromeRuntime(options: CreateMockChromeOptions = {}): 
       },
     },
     runtime: {
-      id: 'mock-addon-extension-id',
+      id: extensionId,
       lastError: null,
       getManifest: () => ({ ...manifestData }),
-      getURL: (path: string) => `chrome-extension://mock-addon-extension-id/${path.replace(/^\//, '')}`,
+      getURL: (path: string) => `chrome-extension://${extensionId}/${path.replace(/^\//, '')}`,
       sendMessage: async (message: unknown) => {
         activityLog.push({ type: 'message', timestamp: Date.now(), payload: message });
-        const sender = { id: 'mock-addon-extension-id' };
+
+        if (options.backendProxy && typeof message === 'object' && message !== null && 'action' in message) {
+          const actionName = String((message as { action: unknown }).action);
+          const intercepted = await options.backendProxy.interceptMessage(actionName, message);
+          if (intercepted.handled) {
+            return intercepted.result;
+          }
+        }
+
+        const sender = { id: extensionId };
         for (const listener of messageListeners) {
           try {
             const result = listener(message, sender, () => {});
@@ -121,9 +146,7 @@ export function createMockChromeRuntime(options: CreateMockChromeOptions = {}): 
       },
     },
     tabs: {
-      query: async () => [
-        { id: 1, url: 'https://example.com/app', title: 'Example Page', active: true },
-      ],
+      query: async () => [...defaultTabs],
       sendMessage: async (_tabId, message) => {
         activityLog.push({ type: 'message', timestamp: Date.now(), payload: message });
         return { ok: true };

@@ -1,0 +1,42 @@
+name: "Bug Report (Defect)"
+description: "Report a defect, regression, or violated invariant with reproducible failing test"
+title: "fix(<module>): <summary>"
+labels: ["type:bug", "status:backlog", "priority:high"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Dark Factory Bug Report
+        Every bug fix must begin with a failing regression test asserting the fix.
+  - type: textarea
+    id: description
+    attributes:
+      label: Defect Description
+      description: What unexpected behavior or invariant violation occurred?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce / Observable Break
+      description: Exact steps, inputs, or command that triggers the failure.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Correct Behavior
+      description: What should happen according to specification/contract?
+    validations:
+      required: true
+  - type: checkboxes
+    id: remediation_checklist
+    attributes:
+      label: Bug Remediation Requirements
+      options:
+        - label: "Regression test added to test suite asserting the defect"
+          required: true
+        - label: "Upstream vs Custom evaluation completed (is this systemic to df71 or local to project?)"
+          required: true
+        - label: "Unified gate `make df71:check` passes"
+          required: true

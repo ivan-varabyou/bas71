@@ -1,3 +1,16 @@
+<!-- df71:rules:start -->
+## Dark Factory Rules (Generic Project) [df71]
+- All handwritten source files must adhere strictly to physical line limits.
+- Universal Make Façade: use `make env`, `make dev`, `make test`, `make df71:check`.
+- Pre-task Git Hygiene: run `df71 stage-check --pre-task` before any task; stage must be clean with zero temp/secret/screenshot files.
+- Companion API contracts: shared entities/components should have a companion `<name>.api.md` (≤ 60 lines) documenting public contract so agents minimize read calls.
+### Project Architecture & Rules
+- Keep all handwritten source files ≤ 220 physical lines.
+- Always run tests and df71:check before committing.
+- Ensure all environment variables are documented in .env.example.
+- Dev mode: use `make dev` to run the local server.
+<!-- df71:rules:end -->
+
 # bas71 Development & Integration Rules
 
 > Browser Addon Stand (`bas71`) — Standalone Browser Extension Development Harness with `df71` under the hood.

@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.0] - 2026-11-06
+
+- feat: universal addon testing standard, backend proxy, scenarios registry, multi-area storage inspector, and agent contracts
+
 ## [0.3.0] - 2026-11-06
 
 - Extracted `bas71` into a dedicated repository under `https://github.com/ivan-varabyou/bas71.git`.

@@ -3,6 +3,7 @@ import type {
   StandTheme,
   ViewportDefinition,
   CustomControl,
+  StandScenario,
 } from './types.js';
 import { renderCustomControl, type ControlHandle } from './controls.js';
 
@@ -10,6 +11,7 @@ export interface StandToolbarOptions<TState extends Record<string, unknown> = Re
   title?: string | undefined;
   viewports: ViewportDefinition[];
   controls?: Array<CustomControl<TState>> | undefined;
+  scenarios?: Array<StandScenario<TState>> | undefined;
   context: StandContext<TState>;
 }
 
@@ -19,6 +21,7 @@ export class StandToolbar<TState extends Record<string, unknown> = Record<string
   private readonly viewportButtons = new Map<string, HTMLButtonElement>();
   private readonly themeButtons = new Map<StandTheme, HTMLButtonElement>();
   private readonly controlHandles: Array<ControlHandle<TState>> = [];
+  private scenarioSelect: HTMLSelectElement | null = null;
 
   constructor(options: StandToolbarOptions<TState>) {
     this.context = options.context;
@@ -73,7 +76,37 @@ export class StandToolbar<TState extends Record<string, unknown> = Record<string
     }
     controlsContainer.appendChild(themeGroup);
 
-    // 4. Custom Controls Group (Project-specific buttons, selects, toggles, badges)
+    // 4. Scenario Switcher (if scenarios are provided)
+    if (options.scenarios && options.scenarios.length > 0) {
+      const scenarioGroup = document.createElement('div');
+      scenarioGroup.className = 'vfa-stand-btn-group vfa-stand-scenario-group';
+
+      const scLabel = document.createElement('span');
+      scLabel.className = 'vfa-stand-label';
+      scLabel.textContent = 'Scenario:';
+      scenarioGroup.appendChild(scLabel);
+
+      this.scenarioSelect = document.createElement('select');
+      this.scenarioSelect.className = 'vfa-stand-select';
+
+      for (const sc of options.scenarios) {
+        const opt = document.createElement('option');
+        opt.value = sc.id;
+        opt.textContent = sc.label;
+        this.scenarioSelect.appendChild(opt);
+      }
+
+      this.scenarioSelect.addEventListener('change', () => {
+        if (this.scenarioSelect) {
+          this.context.activateScenario(this.scenarioSelect.value);
+        }
+      });
+
+      scenarioGroup.appendChild(this.scenarioSelect);
+      controlsContainer.appendChild(scenarioGroup);
+    }
+
+    // 5. Custom Controls Group (Project-specific buttons, selects, toggles, badges)
     if (options.controls && options.controls.length > 0) {
       const customGroup = document.createElement('div');
       customGroup.className = 'vfa-stand-btn-group vfa-custom-controls';
@@ -86,7 +119,7 @@ export class StandToolbar<TState extends Record<string, unknown> = Record<string
       controlsContainer.appendChild(customGroup);
     }
 
-    // 5. Utility Group (Storage Inspector & Re-mount)
+    // 6. Utility Group (DevTools, Storage Inspector & Re-mount)
     const utilsGroup = document.createElement('div');
     utilsGroup.className = 'vfa-stand-btn-group';
 
@@ -95,7 +128,7 @@ export class StandToolbar<TState extends Record<string, unknown> = Record<string
       devtoolsBtn.type = 'button';
       devtoolsBtn.className = 'vfa-stand-btn';
       devtoolsBtn.textContent = 'DevTools (Alt+D)';
-      devtoolsBtn.title = 'Toggle @viafactory/devtools DOM Inspector';
+      devtoolsBtn.title = 'Toggle DevTools DOM Inspector';
       devtoolsBtn.addEventListener('click', () => this.context.toggleDevTools?.());
       utilsGroup.appendChild(devtoolsBtn);
     }
@@ -131,6 +164,12 @@ export class StandToolbar<TState extends Record<string, unknown> = Record<string
     }
     for (const handle of this.controlHandles) {
       handle.update(state);
+    }
+    if (this.scenarioSelect) {
+      const activeSc = this.context.getActiveScenario();
+      if (activeSc && this.scenarioSelect.value !== activeSc.id) {
+        this.scenarioSelect.value = activeSc.id;
+      }
     }
   }
 }

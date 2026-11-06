@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  publish-release:
+    name: Build, Verify and Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Pull and Verify Environment
+        run: make env
+
+      - name: Install Dependencies
+        run: make setup
+
+      - name: Run Dark Factory Gate
+        run: make df71:check
+
+      - name: Build Distribution
+        run: make build
+
+      - name: Extract Release Notes from CHANGELOG.md
+        id: release_notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Extract notes for this version section from CHANGELOG.md
+          awk "/^## \\[${VERSION}\\]/{flag=1; next} /^## \\[[0-9]/{flag=0} flag" CHANGELOG.md > RELEASE_NOTES.md || true
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "Release notes for ${GITHUB_REF_NAME}" > RELEASE_NOTES.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          name: "Release ${{ github.ref_name }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm (if NPM_TOKEN present)
+        run: |
+          if [ -n "${NPM_TOKEN:-}" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+            pnpm publish --no-git-checks --access public
+          else
+            echo "NPM_TOKEN not set; skipping npm publish"
+          fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

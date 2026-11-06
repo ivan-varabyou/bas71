@@ -1,0 +1,17 @@
+name: Project Kanban Sync
+
+on:
+  issues:
+    types: [opened, labeled, unlabeled, closed, reopened]
+  pull_request:
+    types: [opened, labeled, unlabeled, closed, reopened]
+
+jobs:
+  sync-status:
+    name: Sync Kanban Status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Status Event
+        run: |
+          echo "Issue/PR #${{ github.event.issue.number || github.event.pull_request.number }} status updated"
+          echo "Action: ${{ github.event.action }}"
