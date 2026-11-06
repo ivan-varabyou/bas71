@@ -1,6 +1,6 @@
 {
   "name": "bas71",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Framework-agnostic browser extension dev stand harness and mock Chrome runtime for Vue, React, Angular, Svelte, and Vanilla JS",
   "license": "Apache-2.0",
   "type": "module",
