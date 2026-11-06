@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.1] - 2026-11-07
+
+- chore: bump release version and verify pipeline integrity.
+
 ## [0.4.0] - 2026-11-06
 
 - feat: universal addon testing standard, backend proxy, scenarios registry, multi-area storage inspector, and agent contracts
